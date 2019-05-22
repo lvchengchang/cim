@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 )
@@ -56,6 +57,18 @@ func Resp(w http.ResponseWriter, code int, msg string, data interface{}) {
 
 func main() {
 	http.HandleFunc("/user/login", userLogin)
+	http.Handle("/asset/", http.FileServer(http.Dir(".")))
+
+	http.HandleFunc("/user/login.shtml", func(w http.ResponseWriter, r *http.Request) {
+		// analyze
+		tpl, err := template.ParseFiles("view/user/login.html")
+		if err != nil {
+			log.Fatalln(err)
+			return
+		}
+
+		tpl.ExecuteTemplate(w, "/user/login.shtml", nil)
+	})
 
 	http.ListenAndServe(":8080", nil)
 }
