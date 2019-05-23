@@ -35,7 +35,7 @@ func (s *UserService) Register(mobile,
 	tmp.Passwd = util.MD5Encode(passwd)
 	tmp.Createat = time.Now()
 	tmp.Sex = sex
-	tmp.Token = fmt.Sprintf("%8d", rand.Intn(8))
+	tmp.Token = util.MD5Encode(fmt.Sprintf("%8d", rand.Intn(8)))
 
 	_, err = DbEngin.InsertOne(&tmp)
 	if err != nil {
