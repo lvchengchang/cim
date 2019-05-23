@@ -1,37 +1,25 @@
 package main
 
 import (
+	"cim/model"
+	"cim/service"
 	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
 	"html/template"
 	"log"
+	"math/rand"
 	"net/http"
 )
 
 var (
-	DbEngin *xorm.Engine
+	userService service.UserService
 )
 
 type H struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`
 	Data interface{} `json:"data,omitempty"`
-}
-
-func init() {
-	driveName := "mysql"
-	DbName := "root:lvchang@tcp(127.0.0.1:3306)/im?charset=utf8"
-	DbEngin, err := xorm.NewEngine(driveName, DbName)
-	if nil != err {
-		log.Println(err.Error())
-	}
-
-	DbEngin.ShowSQL(true)      // show sql
-	DbEngin.SetMaxOpenConns(2) // mysql max connect num
-
-	fmt.Println("init mysql driver ok")
 }
 
 func userLogin(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +44,23 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 
 	Resp(w, 0, "fail", "fail")
 	return
+}
+
+func register(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	mobile := r.PostForm.Get("mobile")
+	passwd := r.PostForm.Get("passwd")
+	nickname := fmt.Sprintf("user%6d", rand.Intn(31))
+	avatar := ""
+	sex := model.SEX_MEN
+	user, err := userService.Register(mobile, passwd, nickname, avatar, sex)
+	if err != nil {
+		Resp(w, -1, err.Error(), "fail")
+		return
+	}
+
+	Resp(w, 0, "", user)
 }
 
 func Resp(w http.ResponseWriter, code int, msg string, data interface{}) {
@@ -93,6 +98,8 @@ func RegisterView() {
 
 func main() {
 	http.HandleFunc("/user/login", userLogin)
+	http.HandleFunc("/user/register", register)
+
 	http.Handle("/asset/", http.FileServer(http.Dir(".")))
 
 	RegisterView()
