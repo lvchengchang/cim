@@ -14,7 +14,7 @@ var (
 
 func init() {
 	driveName := "mysql"
-	DbName := "root:root@tcp(127.0.0.1:3306)/im?charset=utf8"
+	DbName := "root:lvchang@tcp(118.25.180.168:3306)/im?charset=utf8"
 	var err error
 	DbEngin, err = xorm.NewEngine(driveName, DbName)
 	if nil != err {
