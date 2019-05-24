@@ -49,3 +49,11 @@ func (s *UserService) Login(mobile,
 	passwd string) (user model.User, err error) {
 	return user, nil
 }
+
+func (s *UserService) Find(
+	userId int64) (user model.User) {
+
+	tmp := model.User{}
+	DbEngin.ID(userId).Get(&tmp)
+	return tmp
+}
